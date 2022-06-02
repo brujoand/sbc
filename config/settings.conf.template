@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# import_repo 'repo_name' "https://github.com/user/repo"
+# enable_cog 'repo_name/cog_name'
