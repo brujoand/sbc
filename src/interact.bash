@@ -26,11 +26,6 @@ _sbc_require_argument() {
   fi
 }
 
-_sbc_sync() {
-  _sbc_execute configure::load_config
-  # shellcheck source=/dev/null
-  source "$SBC_COGS"
-}
 
 _sbc_configure() {
   if [[ -n "$EDITOR" ]]; then
@@ -42,7 +37,8 @@ _sbc_configure() {
 }
 
 _sbc_wrap() {
-  if [[ $SBC_DEBUG == 'true' ]]; then
+  if [[ -n $SBC_DEBUG ]]; then
+    echo yes
     set -T
     log_function() {
       [[ ${BASH_LINENO[0]} -eq 0 ]] && return
@@ -51,11 +47,12 @@ _sbc_wrap() {
     trap 'log_function' DEBUG
   fi
 
-  source "${SBC_PATH}/src/main.bash"
+  #source "${SBC_PATH}/src/main.bash"
 }
 
 _sbc_execute() {
-  (_sbc_wrap && "$@")
+  #(_sbc_wrap && "$@")
+  (source "${SBC_PATH}/src/main.bash" && "$@")
 }
 
 sbc() {
@@ -131,4 +128,9 @@ _sbc() {
 }
 
 complete -F _sbc sbc
+
+_sbc_execute configure::load_config
+# shellcheck source=/dev/null
+source "$SBC_COGS"
+
 

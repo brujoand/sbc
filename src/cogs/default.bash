@@ -139,8 +139,6 @@ function describe() { # show help and location of a custom function or alias
     pp="bat -l bash -p"
   fi
 
-  type="$(type -t "$query")"
-
   for file in $(sourced_files); do
     awk '/^function '"$query"'\(\)/,/^}/ { i++; if(i==1){print "# " FILENAME ":" FNR RS $0;} else {print $0;}}' "$file"
     awk '/^function \_'"$query"'\(\)/,/^}/ { i++; if(i==1){print "# " FILENAME ":" FNR RS $0;} else {print $0;}}' "$file"
