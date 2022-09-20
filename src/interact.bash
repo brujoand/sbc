@@ -132,5 +132,3 @@ complete -F _sbc sbc
 _sbc_execute configure::load_config
 # shellcheck source=/dev/null
 source "$SBC_COGS"
-
-
