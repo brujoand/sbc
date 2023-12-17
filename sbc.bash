@@ -15,3 +15,4 @@ fi
 export SBC_COGS
 export SBC_PATH
 source "${SBC_PATH}/src/interact.bash"
+export SBC_SOURCED=1

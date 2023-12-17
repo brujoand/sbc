@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+base_path=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+bashrc_path="$HOME"/.bashrc
+
+if [[ -z "$SBC_PATH" ]]; then
+  echo "SBC: adding sbc_path=${base_path} to ~/.bashrc"
+  echo "SBC_PATH=${base_path}" >>"$bashrc_path"
+else
+  echo "SBC: SBC_PATH has already been set to '$SBC_PATH'"
+fi
+
+if [[ -z "$SBC_SOURCED" ]]; then
+  echo "SBC: adding 'source ${base_path}/sbc.bash' to ~/.bashrc"
+  echo "source ${base_path}/sbc.bash" >>"$bashrc_path"
+else
+  echo "${base_path}/sbc.bash has already been set to be sourced"
+fi
+
+echo "SBC: You'll have to reload bash or source ~/.bashrc for changes to take effect"
