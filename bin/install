@@ -3,18 +3,30 @@
 base_path=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 bashrc_path="$HOME"/.bashrc
 
-if [[ -z "$SBC_PATH" ]]; then
-  echo "SBC: adding sbc_path=${base_path} to ~/.bashrc"
-  echo "SBC_PATH=${base_path}" >>"$bashrc_path"
-else
-  echo "SBC: SBC_PATH has already been set to '$SBC_PATH'"
-fi
+function ensure_path {
+  if [[ -z "$SBC_PATH" ]]; then
+    echo "SBC: adding sbc_path=${base_path} to ~/.bashrc"
+    echo "SBC_PATH=${base_path}" >> "$bashrc_path"
+    return 1
+  else
+    echo "SBC: SBC_PATH has already been set to '$SBC_PATH'"
+    return 0
+  fi
+}
 
-if [[ -z "$SBC_SOURCED" ]]; then
-  echo "SBC: adding 'source ${base_path}/sbc.bash' to ~/.bashrc"
-  echo "source ${base_path}/sbc.bash" >>"$bashrc_path"
-else
-  echo "${base_path}/sbc.bash has already been set to be sourced"
-fi
+function ensure_sourced {
+  if [[ -z "$SBC_SOURCED" ]]; then
+    echo "SBC: adding 'source ${base_path}/sbc.bash' to ~/.bashrc"
+    echo "source ${base_path}/sbc.bash" >>"$bashrc_path"
+    return 1
+  else
+    echo "SBC: ${base_path}/sbc.bash has already been sourced"
+    return 0
+  fi
+}
 
-echo "SBC: You'll have to reload bash or source ~/.bashrc for changes to take effect"
+if ensure_path && ensure_sourced; then
+  echo "SBC: Already installed"
+else
+  echo "SBC: You'll have to reload bash or source ~/.bashrc for any changes to take effect"
+fi
