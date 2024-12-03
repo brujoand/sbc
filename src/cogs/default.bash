@@ -70,10 +70,11 @@ function _sourced_files(){ # Recursive helper for sourced_files
 }
 
 function sourced_files() { # Lists files which would be sourced
-  local init_file
-  init_file=$(shell_init_file)
-  printf '%s\n' "$init_file"
-  _sourced_files "$init_file"
+  local init_files
+  for init_file in $(shell_init_files); do
+    printf '%s\n' "$init_file"
+    _sourced_files "$init_file"
+  done
 }
 
 function sourced_functions() { # List all functions which would be sourced
@@ -88,26 +89,27 @@ function sourced_aliases() { # List all aliases which would be sourced
   done | sort
 }
 
-function shell_init_file() { # Returns what would be the initial sourced file
-  local init_locations init_file
-  init_locations=( "$HOME"/.{bashrc,bash_profile,bash_login,profile} )
-  if [[ $- == *i* ]]; then
-    init_file="${HOME}/.bashrc"
-  else
-    for candidate in "${init_locations[@]}"; do
+function shell_init_files() { # Returns what would be the initially sourced files
+  local non_login_files login_files login_candidates init_files
+  init_files=()
+  non_login_files=("${HOME}/.bashrc" "/etc/bash.bashrc")
+  login_files=("/etc/profile")
+  login_candidates=( "$HOME"/.{bash_profile,bash_login,profile} )
+  # https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/
+  if shopt -q login_shell; then
+    init_files+=("${login_files[@]}")
+    for candidate in "${login_candidates[@]}"; do
       if [[ -f "$candidate" ]]; then
-        init_file="$candidate"
+        init_files+=("$candidate")
         break
       fi
     done
+  else
+    init_files+=("${non_login_files[@]}")
   fi
 
-  if [[ -z $init_file ]]; then
-    echo "Could not find any config files.."
-    exit 1
-  else
-    echo "$init_file"
-  fi
+  printf '%s\n' "${init_files[@]}"
+
 }
 
 function edit_shell_config() { # Edit a shell config file

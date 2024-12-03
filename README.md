@@ -38,12 +38,6 @@ Once setup there isn't much to it, but you could use these helpers if you'd like
   Commands:
   sync              - Sync repos, cogs and settings
   help              - Show this help text
-  repo
-    list            - List all repos
-    import          - Import a repo, takes file/git url and name as parameter
-    remove          - Remove repo, takes repo name as parameter
-  cog
-    list            - List all cogs
-    load            - Load a cog by repo_name/cog_name
+  list              - List all repos and their cogs
   configure         - Opens the sbc config in $EDITOR
 ```

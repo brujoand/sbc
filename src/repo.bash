@@ -26,15 +26,8 @@ repo::import() {
   debug::log "Successfully imported '$repo_name'"
 }
 
-repo::remove() {
-  local repo_name=$1
-  repo_path="${SBC_REPO_PATH}/${repo_name}"
-  if [[ -d "$repo_path" ]]; then
-    debug::log "Could not find '$repo_name' at '$repo_path'"
-  else
-    rm -r "$repo_path" || return 1
-    debug::log "Removed '$repo_name' directory '$repo_path'"
-  fi
+repo::delete_all() {
+  rm -rf "${SBC_REPO_PATH:?}/*"
 }
 
 repo::find_url() {
