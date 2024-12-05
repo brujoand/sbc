@@ -25,8 +25,7 @@ function ensure_sourced {
   fi
 }
 
-if ensure_path && ensure_sourced; then
-  echo "SBC: Already installed"
-else
-  echo "SBC: You'll have to reload bash or source ~/.bashrc for any changes to take effect"
-fi
+ensure_path
+ensure_sourced
+
+echo "SBC: You'll have to reload bash or source ~/.bashrc for any changes to take effect"
