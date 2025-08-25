@@ -2,21 +2,34 @@
 fail_fast: false
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: mixed-line-ending
-  - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.10
-    hooks:
-      - id: remove-crlf
-      - id: remove-tabs
-  - repo: https://github.com/sirosen/fix-smartquotes
-    rev: 0.2.0
-    hooks:
-      - id: fix-smartquotes
-  - repo: https://github.com/zricethezav/gitleaks
-    rev: v8.2.0
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
     hooks:
       - id: gitleaks
+
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
+        args: [-e, SC1091, -e, SC2034]  # Ignore sourcing non-constant files and unused variables
+
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.10.0-1
+    hooks:
+      - id: shfmt
+        args: [-w, -s, -i, '2']  # Write changes, simplify, 2-space indent
+
+  - repo: local
+    hooks:
+      - id: bash-syntax
+        name: Check bash syntax
+        entry: bash -n
+        language: system
+        files: '\.bash$'
+        types: [text]
