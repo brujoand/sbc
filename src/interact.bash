@@ -1,5 +1,5 @@
 function _sbc_print_usage {
-  cat << EOF
+  cat <<EOF
   Usage: sbc [command]
 
   Commands:
@@ -14,17 +14,17 @@ function _sbc_require_argument {
   local argument=$1
   local name=$2
 
-  if [[ -z "$argument" ]]; then
+  if [[ -z $argument ]]; then
     echo "Value for required argument '$name' is missing"
     _sbc_print_usage && return 1
   fi
 }
 
 function _sbc_configure {
-  if [[ -n "$EDITOR" ]]; then
+  if [[ -n $EDITOR ]]; then
     $EDITOR "${HOME}/.config/sbc/settings.conf"
   else
-    echo "No \$EDITOR set, unable to open config"
+    echo 'No EDITOR set, unable to open config'
     echo "You can edit it here: ${HOME}/.config/sbc/settings.conf"
   fi
 }
@@ -39,37 +39,37 @@ function _sbc_sync {
 
 function sbc {
   case $1 in
-    'list')
-      for repo in $(_sbc_execute repo::list); do
-        printf '\n%s:\n' "$repo"
-        _sbc_execute cog::list "$(basename "${repo}")"
-      done
+  'list')
+    for repo in $(_sbc_execute repo::list); do
+      printf '\n%s:\n' "$repo"
+      _sbc_execute cog::list "$(basename "${repo}")"
+    done
     ;;
-    'sync') # Reload settings and SBC
-      _sbc_sync
-      ;;
-    'configure')
-      _sbc_configure
-      ;;
-    *)
-      _sbc_print_usage && return 1
-      ;;
+  'sync') # Reload settings and SBC
+    _sbc_sync
+    ;;
+  'configure')
+    _sbc_configure
+    ;;
+  *)
+    _sbc_print_usage && return 1
+    ;;
   esac
 }
 
 function _sbc {
   local cur words
   cur="${COMP_WORDS[COMP_CWORD]}"
-  prev="${COMP_WORDS[$(( COMP_CWORD - 1 ))]}"
+  prev="${COMP_WORDS[$((COMP_CWORD - 1))]}"
 
   words=()
   case "$prev" in
-    'sbc')
-      words=('sync' 'help' 'list' 'configure')
-      ;;
+  'sbc')
+    words=('sync' 'help' 'list' 'configure')
+    ;;
   esac
 
-  COMPREPLY=( $( compgen -W "${words[*]}" -- "$cur") )
+  mapfile -t COMPREPLY < <(compgen -W "${words[*]}" -- "$cur")
 }
 
 complete -F _sbc sbc

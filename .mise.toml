@@ -1,0 +1,10 @@
+[tools]
+# Security scanning
+gitleaks = "latest"
+
+# Shell linting and formatting
+shellcheck = "latest"
+shfmt = "latest"
+
+# Pre-commit framework
+pre-commit = "latest"
