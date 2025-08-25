@@ -7,7 +7,7 @@ cog::expand_cog_path() {
 
 cog::verify_path() {
   local cog_path=$1
-  if [[ -f "$cog_path" ]]; then
+  if [[ -f $cog_path ]]; then
     return 0
   else
     debug::log "Cog not found: $cog_path"
@@ -31,8 +31,9 @@ cog::enable() {
 
   cog::verify_path "$cog_path"
 
-  if ! grep -q "^source ${cog_path}$" "$SBC_COGS"; then
-    printf '%s\n' "source ${cog_path}" >> "$SBC_COGS"
+  [[ -f $SBC_COGS ]] || touch "$SBC_COGS"
+  if ! grep -q "^source ${cog_path}$" "$SBC_COGS" 2>/dev/null; then
+    printf '%s\n' "source ${cog_path}" >>"$SBC_COGS"
   fi
 }
 
