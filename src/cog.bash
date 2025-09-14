@@ -10,7 +10,7 @@ cog::verify_path() {
   if [[ -f $cog_path ]]; then
     return 0
   else
-    debug::log "Cog not found: $cog_path"
+    sbl::log::debug "Cog not found: $cog_path"
     return 1
   fi
 }
@@ -29,7 +29,9 @@ cog::enable() {
   cog_name=$1
   cog_path=$(cog::expand_cog_path "$cog_name")
 
-  cog::verify_path "$cog_path"
+  if ! cog::verify_path "$cog_path"; then
+    return 1
+  fi
 
   [[ -f $SBC_COGS ]] || touch "$SBC_COGS"
   if ! grep -q "^source ${cog_path}$" "$SBC_COGS" 2>/dev/null; then

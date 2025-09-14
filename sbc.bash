@@ -4,13 +4,12 @@
 #   Simple Bash Cogs (SBC)      #
 #################################
 
-# shellcheck source=src/interact.bash
+# Source SBC standard library for utilities and logging
+# shellcheck source=src/cogs/library.sh
+source "${SBC_PATH}/src/cogs/library.sh"
+SBC_COGS="$(sbl::utils::create_temp_file)"
 
-if [[ -d "/run/user/${UID}" ]]; then
-  SBC_COGS="$(mktemp --tmpdir="/run/user/${UID}")" && trap 'command rm "$SBC_COGS"' EXIT;
-else
-  SBC_COGS="$(mktemp)" && trap 'command rm "$SBC_COGS"' EXIT;
-fi
+# shellcheck source=src/interact.bash
 
 export SBC_COGS
 export SBC_PATH

@@ -5,7 +5,7 @@ repo::import() {
   local repo_url="$2"
 
   if [[ -z $repo_url || -z $repo_name ]]; then
-    debug::log "Unable to add repo with name: '${repo_name}' and url: '${repo_url}'"
+    sbl::log::debug "Unable to add repo with name: '${repo_name}' and url: '${repo_url}'"
     return 1
   fi
 
@@ -21,11 +21,11 @@ repo::import() {
   elif [[ -f "${repo_path}/.git" ]]; then
     git clone "$repo_url" "$repo_path"
   else
-    debug::log "Don't know how to import '$repo_name'"
+    sbl::log::debug "Don't know how to import '$repo_name'"
     return 1
   fi
 
-  debug::log "Successfully imported '$repo_name'"
+  sbl::log::debug "Successfully imported '$repo_name'"
 }
 
 repo::delete_all() {

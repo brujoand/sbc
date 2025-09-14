@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-function sbc::expand_alias {
+sbc::_expand_alias() {
   local alias_name alias_definition
   alias_name=$1
   [[ -z $alias_name ]] && return 1
   type "$alias_name" &>/dev/null || return 1
   alias_definition=$(alias "$alias_name")
-  dequote "${alias_definition//alias ${alias_name}=/}"
+  sbl::utils::dequote "${alias_definition//alias ${alias_name}=/}"
 }
 
-function sbc::update_comp_words {
+sbc::_update_comp_words() {
   local alias_name alias_value
   alias_name=$1
   alias_value=$2
@@ -30,14 +30,13 @@ function sbc::update_comp_words {
   COMP_WORDS=("${comp_words[@]}")
 }
 
-function sbc::alias_completion_wrapper {
+function sbc::_alias_completion_wrapper() {
   local alias_name alias_definition alias_value
   alias_name=${COMP_WORDS[0]}
-  alias_value="$(sbc::expand_alias "$alias_name")"
+  alias_value="$(sbc::_expand_alias "$alias_name")"
   [[ -z $alias_value ]] && return 1
 
-  sbc::update_comp_words "$alias_name" "$alias_value"
-  # Update other COMP variables
+  sbc::_update_comp_words "$alias_name" "$alias_value"
   COMP_LINE=${COMP_LINE//${alias_name}/${alias_value}}
   COMP_CWORD=$((${#COMP_WORDS[@]} - 1))
   COMP_POINT=${#COMP_LINE}
@@ -51,11 +50,10 @@ function sbc::alias_completion_wrapper {
   comp_definition=$(complete -p "$command")
   comp_function=$(sed -n "s/^complete .* -F \(.*\) ${command}/\1/p" <<<"$comp_definition")
 
-  # Call the original completion script with our expanded alias
   "$comp_function" "${command}" "${current_word}" "${previous_word}"
 }
 
-function sbc::_sourced_files() { # Recursive helper for sbc::sourced_files
+function sbc::_sourced_files() {
   local root_file=$1
   local source_file
   while read -r source_file; do
@@ -64,36 +62,35 @@ function sbc::_sourced_files() { # Recursive helper for sbc::sourced_files
       printf '%s\n' "$source_file"
       sbc::_sourced_files "$source_file"
     fi
-  done < <(sed -En 's/^[.|source]+ (.*)/\1/p' "$root_file")
+  done < <(sed -En 's/^[[:space:]]*[.|source][[:space:]]+(.*)/\1/p' "$root_file")
 }
 
-function sbc::sourced_files() { # Lists files which would be sourced
+function sbc::sourced_files() {
   local init_files
-  for init_file in $(shell_init_files); do
+  for init_file in $(sbc::shell_init_files); do
     printf '%s\n' "$init_file"
     sbc::_sourced_files "$init_file"
   done
 }
 
-function sbc::sourced_functions { # List all functions which would be sourced
+function sbc::sourced_functions() {
   for file in $(sbc::sourced_files); do
     sed -n "s/^function \(.*\)() { \(.*\)$/\1 \2/p" "$file" | grep -v "^_"
   done | sort
 }
 
-function sbc::sourced_aliases { # List all aliases which would be sourced
+function sbc::sourced_aliases() {
   for file in $(sbc::sourced_files); do
-    sed -n "s/.*alias \(.*\)=['|\"].*#\(.*\)$/\1 #\2/p" "$file" | sed "s/sbc::sourced_aliases=.*#/sourced_aliases #/"
+    sed -n "s/.*alias \(.*\)=['|\"].*#\(.*\)$/\1 #\2/p" "$file" | sed "s/sourced_aliases=.*#/sourced_aliases #/"
   done | sort
 }
 
-function sbc::shell_init_files { # Returns what would be the initially sourced files
+function sbc::shell_init_files() {
   local non_login_files login_files login_candidates init_files
   init_files=()
   non_login_files=("${HOME}/.bashrc" "/etc/bash.bashrc")
   login_files=("/etc/profile")
   login_candidates=("$HOME"/.{bash_profile,bash_login,profile})
-  # https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/
   if shopt -q login_shell; then
     init_files+=("${login_files[@]}")
     for candidate in "${login_candidates[@]}"; do
@@ -107,16 +104,15 @@ function sbc::shell_init_files { # Returns what would be the initially sourced f
   fi
 
   printf '%s\n' "${init_files[@]}"
-
 }
 
-function sbc::edit_shell_config { # Edit a shell config file
+function sbc::edit_shell_config() {
   local file
   file=$(grep "/$1$" <(sbc::sourced_files))
   "${EDITOR:-vi}" "$file"
 }
 
-function sbc::_edit_shell_config { # Fuzzy tabcompletion for sbc::edit_shell_config
+function sbc::_edit_shell_config() {
   local cur config_files
   _get_comp_words_by_ref cur
   config_files=$(for file in $(sbc::sourced_files); do echo "${file##*/}"; done)
@@ -130,7 +126,7 @@ function sbc::_edit_shell_config { # Fuzzy tabcompletion for sbc::edit_shell_con
 
 complete -o nospace -F sbc::_edit_shell_config sbc::edit_shell_config
 
-function sbc::describe { # show help and location of a custom function or alias
+function sbc::describe() {
   local query pp
   query="$1"
   pp="cat"
@@ -146,7 +142,7 @@ function sbc::describe { # show help and location of a custom function or alias
   complete -p "$query" 2>/dev/null
 }
 
-function _describe { # Completion for sbc::describe
+function sbc::_describe() {
   local cur words
   _get_comp_words_by_ref cur
   words=$(
@@ -156,6 +152,6 @@ function _describe { # Completion for sbc::describe
   mapfile -t COMPREPLY < <(compgen -W "$words" -- "$cur")
 }
 
-complete -o nospace -F _describe sbc::describe
+complete -o nospace -F sbc::_describe sbc::describe
 
-alias halp='echo -e "Sourced files:\n$(sbc::sourced_files | sed "s#$HOME/#~/#")\n # \nFunctions:\n$(sbc::sourced_functions)\n # \nAliases:\n\n$(sbc::sourced_aliases)" | column -t -s "#"' # Show all custom aliases and functions
+alias halp='echo -e "Sourced files:\n$(sbc::sourced_files | sed "s#$HOME/#~/#")\n # \nFunctions:\n$(sbc::sourced_functions)\n # \nAliases:\n\n$(sbc::sourced_aliases)" | column -t -s "#"'

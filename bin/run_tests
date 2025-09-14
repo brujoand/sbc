@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+cd "$(dirname "$0")/.." || exit
+
+if ! command -v bats &>/dev/null; then
+  echo "bats is required but not installed"
+  exit 1
+fi
+
+echo "Running SBC tests..."
+bats test/

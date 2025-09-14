@@ -33,3 +33,9 @@ repos:
         language: system
         files: '\.bash$'
         types: [text]
+      - id: bats-tests
+        name: Run bats tests
+        entry: bin/run_tests
+        language: system
+        pass_filenames: false
+        always_run: true
