@@ -51,6 +51,9 @@ function sbc {
   'configure')
     _sbc_configure
     ;;
+  'help' | '')
+    _sbc_print_usage
+    ;;
   *)
     _sbc_print_usage && return 1
     ;;
