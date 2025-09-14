@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck bats
+        pip install pre-commit
+
+    - name: Set up pre-commit cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+
+    - name: Install pre-commit hooks
+      run: pre-commit install
+
+    - name: Run pre-commit hooks
+      run: pre-commit run --all-files
+
+    - name: Run bats tests
+      run: bin/run_tests
+
+    - name: Run Docker installation test
+      run: scripts/test_docker.sh
